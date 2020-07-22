@@ -1,7 +1,7 @@
-import { requestAnimationFrame, cancelAnimationFrame } from './utils';
-import { TYPES, easing, MIN_DURATION, noop } from  './const';
+import { requestAnimationFrame, cancelAnimationFrame } from '../../utils/animationFrame';
+import { TYPES, easing, MIN_DURATION, noop } from  '../../utils/const';
   
-class Timer {
+export default class Timer {
   config: {
     easing: string;
     duration: number;
@@ -22,9 +22,9 @@ class Timer {
   private _stop;
   private _raf;
 
-	constructor(config:any){
+	constructor(config){
 		this.config = {
-			easing: 'linear',
+			easing: 'easeOutSine',
 			duration: Infinity,
 			onStart: noop,
 			onRun: noop,
@@ -32,7 +32,7 @@ class Timer {
 			onEnd: noop
 		};
 		this.isfinished = false;
-		this.config = {...this.config, ...this.config}
+		this.config = {...this.config, ...config}
 	}
 
 	run() {
@@ -55,56 +55,48 @@ class Timer {
       percent: 0,
       type: TYPES.START
 		});
-		
+    
     this.easingFn = easing[this.config.easing];
 
     this._run();
 	}
 	
 	_run() {
-    const _this = this;
-		const { onRun, onStop } = this.config;
-		
+    const { onRun, onStop, duration } = this.config;
     this._raf && cancelAnimationFrame(this._raf);
-    this._raf = requestAnimationFrame(function () {
-      _this.now = Date.now();
-      _this.t = _this.now - _this.start;
-      _this.duration = _this.now - _this.start >= _this.config.duration ? _this.config.duration : _this.now - _this.start;
-      _this.progress = _this.easingFn(_this.duration / _this.config.duration);
-      _this.percent = _this.duration / _this.config.duration + _this._hasFinishedPercent;
-
-      if (_this.percent >= 1 || _this._stop) {
-        _this.percent = _this._stop && _this._stop.percent ? _this._stop.percent : 1;
-        _this.duration = _this._stop && _this._stop.duration ? _this._stop.duration : _this.duration;
+    this._raf = requestAnimationFrame(() => {
+      this.now = Date.now();
+      this.t = this.now - this.start;
+      this.duration = this.now - this.start >= duration ? duration : this.now - this.start;
+      this.progress = this.easingFn(this.duration / duration);
+      this.percent = this.duration / duration + this._hasFinishedPercent;
+      if (this.percent >= 1 || this._stop) {
+        this.percent = this._stop && this._stop.percent ? this._stop.percent : 1;
+        this.duration = this._stop && this._stop.duration ? this._stop.duration : this.duration;
         onRun({
-          percent: _this.progress,
-          originPercent: _this.percent,
-          t: _this.t,
+          percent: this.progress,
+          originPercent: this.percent,
+          t: this.t,
           type: TYPES.RUN
         });
         onStop({
-          percent: _this.percent,
-          t: _this.t,
+          percent: this.percent,
+          t: this.t,
           type: TYPES.STOP
         });
-
-        if (_this.percent >= 1) {
-          _this.isfinished = true;
-
-          _this.stop();
+        if (this.percent >= 1) {
+          this.isfinished = true;
+          this.stop();
         }
-
         return;
       }
-
       onRun({
-        percent: _this.progress,
-        originPercent: _this.percent,
-        t: _this.t,
+        percent: this.progress,
+        originPercent: this.percent,
+        t: this.t,
         type: TYPES.RUN
       });
-
-      _this._run();
+      this._run();
     });
 	}
 	
@@ -121,7 +113,4 @@ class Timer {
     });
     cancelAnimationFrame(this._raf);
 	}
-	
 }
-
-export default Timer;
