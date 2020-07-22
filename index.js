@@ -1,4 +1,4 @@
-import Timer from './es';
+import Timer from './src/es';
 
 /**
  * 

@@ -1,6 +1,6 @@
 {
   "name": "es6-smooth-scroller",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "简洁高效的scrollTo功能（兼容IOS，Safari上实现平滑过渡的滚动效果，同时适用于pc与mobile）！",
   "main": "index.js",
   "scripts": {
